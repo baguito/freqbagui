@@ -74,3 +74,91 @@ def cci(dataframe, period) -> ndarray:
     from pyti.commodity_channel_index import commodity_channel_index
 
     return commodity_channel_index(dataframe['close'], dataframe['high'], dataframe['low'], period)
+
+
+def laguerre(self, dataframe, gamma=0.75, smooth=1, debug=bool):
+    """
+    laguerre RSI
+    Author Creslin
+    Original Author: John Ehlers 1979
+
+
+    :param dataframe: df
+    :param gamma: Between 0 and 1, default 0.75
+    :param smooth: 1 is off. Valid values over 1 are alook back smooth for an ema
+    :param debug: Bool, prints to console
+    :return: Laguerre RSI:values 0 to +1
+    """
+    """
+    Laguerra RSI 
+    How to trade lrsi:  (TL, DR) buy on the flat 0, sell on the drop from top,
+    not when touch the top
+    http://systemtradersuccess.com/testing-laguerre-rsi/
+
+    http://www.davenewberg.com/Trading/TS_Code/Ehlers_Indicators/Laguerre_RSI.html
+    """
+    import talib as ta
+    import pandas as pd
+    ema = ta.EMA
+
+    df = dataframe
+    g = gamma
+    smooth = smooth
+    debug = debug
+    if debug:
+        from pandas import set_option
+        set_option('display.max_rows', 2000)
+        set_option('display.max_columns', 8)
+
+    """
+    Vectorised pandas or numpy calculations are not used
+    in Laguerre as L0 is self referencing.
+    Therefore we use an intertuples loop as next best option. 
+    """
+    lrsi_l = []
+    L0, L1, L2, L3 = 0.0, 0.0, 0.0, 0.0
+    for row in df.itertuples(index=True, name='lrsi'):
+        """ Original Pine Logic  Block1
+        p = close
+        L0 = ((1 - g)*p)+(g*nz(L0[1]))
+        L1 = (-g*L0)+nz(L0[1])+(g*nz(L1[1]))
+        L2 = (-g*L1)+nz(L1[1])+(g*nz(L2[1]))
+        L3 = (-g*L2)+nz(L2[1])+(g*nz(L3[1])) 
+        """
+        # Feed back loop
+        L0_1, L1_1, L2_1, L3_1 = L0, L1, L2, L3
+
+        L0 = (1 - g) * row.close + g * L0_1
+        L1 = -g * L0 + L0_1 + g * L1_1
+        L2 = -g * L1 + L1_1 + g * L2_1
+        L3 = -g * L2 + L2_1 + g * L3_1
+
+        """ Original Pinescript Block 2 
+        cu=(L0 > L1? L0 - L1: 0) + (L1 > L2? L1 - L2: 0) + (L2 > L3? L2 - L3: 0)
+        cd=(L0 < L1? L1 - L0: 0) + (L1 < L2? L2 - L1: 0) + (L2 < L3? L3 - L2: 0)
+        """
+        cu = 0.0
+        cd = 0.0
+        if (L0 >= L1):
+            cu = L0 - L1
+        else:
+            cd = L1 - L0
+
+        if (L1 >= L2):
+    cu = cu + L1 - L2
+    else:
+    cd = cd + L2 - L1
+
+
+if (L2 >= L3):
+    cu = cu + L2 - L3
+else:
+    cd = cd + L3 - L2
+
+"""Original Pinescript  Block 3 
+lrsi=ema((cu+cd==0? -1: cu+cd)==-1? 0: (cu/(cu+cd==0? -1: cu+cd)), smooth)
+"""
+if (cu + cd) != 0:
+    lrsi_l.append(cu / (cu + cd))
+else:
+    lrsi_l.append(0)
