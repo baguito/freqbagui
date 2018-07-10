@@ -139,26 +139,25 @@ def laguerre(self, dataframe, gamma=0.75, smooth=1, debug=bool):
         """
         cu = 0.0
         cd = 0.0
-        if (L0 >= L1):
+        if L0 >= L1:
             cu = L0 - L1
         else:
             cd = L1 - L0
 
-        if (L1 >= L2):
-    cu = cu + L1 - L2
-    else:
-    cd = cd + L2 - L1
+        if L1 >= L2:
+            cu = cu + L1 - L2
+        else:
+            cd = cd + L2 - L1
 
+        if L2 >= L3:
+            cu = cu + L2 - L3
+        else:
+            cd = cd + L3 - L2
 
-if (L2 >= L3):
-    cu = cu + L2 - L3
-else:
-    cd = cd + L3 - L2
-
-"""Original Pinescript  Block 3 
-lrsi=ema((cu+cd==0? -1: cu+cd)==-1? 0: (cu/(cu+cd==0? -1: cu+cd)), smooth)
-"""
-if (cu + cd) != 0:
-    lrsi_l.append(cu / (cu + cd))
-else:
-    lrsi_l.append(0)
+        """Original Pinescript  Block 3 
+        lrsi=ema((cu+cd==0? -1: cu+cd)==-1? 0: (cu/(cu+cd==0? -1: cu+cd)), smooth)
+        """
+        if (cu + cd) != 0:
+            lrsi_l.append(cu / (cu + cd))
+        else:
+            lrsi_l.append(0)
