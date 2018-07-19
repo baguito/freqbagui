@@ -76,7 +76,7 @@ def cci(dataframe, period) -> ndarray:
     return commodity_channel_index(dataframe['close'], dataframe['high'], dataframe['low'], period)
 
 
-def laguerre(self, dataframe, gamma=0.75, smooth=1, debug=bool):
+def laguerre(dataframe, gamma=0.75, smooth=1, debug=bool):
     """
     laguerre RSI
     Author Creslin
