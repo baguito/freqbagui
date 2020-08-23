@@ -242,8 +242,8 @@ def atr_percent(dataframe, period, field='close') -> ndarray:
 #
 # Ichimoku Cloud
 #
-def ichimoku(dataframe, conversion_line_period=9, base_line_periods=26,
-             laggin_span=52, displacement=26):
+def ichimoku(dataframe, conversion_line_period=20, base_line_periods=60,
+             laggin_span=120, displacement=30):
     """
     Ichimoku cloud indicator
     Note: Do not use chikou_span for backtesting.
